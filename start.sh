@@ -60,31 +60,31 @@ echo -e "${GREEN}✓${NC} python3 已安装"
 
 # 检查 Skills
 SKILL_DIR="$HOME/.openclaw/workspace/skills"
-if [ ! -d "$SKILL_DIR/social-content-producer" ]; then
-    echo -e "${YELLOW}安装 social-content-producer skill...${NC}"
-    cp -r "$(dirname "$0")/skills/social-content-producer" "$SKILL_DIR/"
-fi
-echo -e "${GREEN}✓${NC} social-content-producer skill 已就绪"
 
+# social-content-producer (本项目自带)
+echo -e "${GREEN}✓${NC} social-content-producer skill (项目内置)"
+
+# nano-banana-pro (必需)
 if [ ! -d "$SKILL_DIR/nano-banana-pro" ]; then
     echo -e "${YELLOW}安装 nano-banana-pro skill...${NC}"
     cp -r "$(dirname "$0")/skills/nano-banana-pro" "$SKILL_DIR/"
 fi
 echo -e "${GREEN}✓${NC} nano-banana-pro skill 已就绪"
 
-if [ ! -d "$SKILL_DIR/publish" ]; then
-    echo -e "${YELLOW}安装 publish skill...${NC}"
-    cp -r "$(dirname "$0")/skills/publish" "$SKILL_DIR/"
-fi
-echo -e "${GREEN}✓${NC} publish skill 已就绪"
-
-# 检查 picnan-checker (预装)
+# picnan-checker (系统预装，敏感词检测)
 if [ ! -d "$SKILL_DIR/picnan-checker" ]; then
-    echo -e "${YELLOW}⚠ picnan-checker skill 未找到，敏感词检测需要使用在线工具${NC}"
-    echo "  网址: https://www.picnan.com/sensitiveword"
+    echo -e "${YELLOW}⚠ picnan-checker skill 未找到${NC}"
+    echo "  敏感词检测将使用在线工具: https://www.picnan.com/sensitiveword"
 else
     echo -e "${GREEN}✓${NC} picnan-checker skill 已就绪 (图南坊敏感词检测)"
-fi"
+fi
+
+# publish (可选，用于公网发布)
+if [ -d "$SKILL_DIR/publish" ]; then
+    echo -e "${GREEN}✓${NC} publish skill 已就绪 (可选，用于公网发布)"
+else
+    echo -e "${YELLOW}○${NC} publish skill 未安装 (可选，只输出到本地 out/ 时不需要)"
+fi
 
 # 提取项目路径
 PROJECT_DIR=$(dirname "$REQUIREMENTS_FILE")
@@ -110,6 +110,7 @@ echo "  1. 读取需求文档"
 echo "  2. 生成微信/小红书/抖音内容"
 echo "  3. 违禁词检查 (picnan-checker / 图南坊)"
 echo "  4. 生成配图 (nano-banana-pro)"
-echo "  5. 组装交付包"
-echo "  6. 发布到公网"
+echo "  5. 组装交付包 → 输出到 out/ 文件夹"
+echo ""
+echo "可选: 使用 publish skill 发布到公网"
 echo ""

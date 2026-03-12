@@ -34,9 +34,9 @@ openclaw skills install @openclaw/nano-banana-pro
 cp -r skills/nano-banana-pro ~/.openclaw/workspace/skills/
 ```
 
-**注意**: 
+**注意**:
 - `social-content-producer` skill 已在项目 `skills/` 目录中
-- `picnan-checker` skill 用于敏感词检测，应已预装在 `~/.openclaw/workspace/skills/picnan-checker/`
+- `picnan-checker` skill 已包含在项目中，支持本地+API双重检测
 
 ### 3. 准备需求文档
 
@@ -109,17 +109,29 @@ AI 会自动执行以下流程：
 - 小红书笔记（5个标题+9图骨架）
 - 抖音脚本（分镜+口播+字幕）
 
-#### Step 3: 违禁词检查
-使用 `picnan-checker` skill（图南坊敏感词检测工具）：
+#### Step 3: 违禁词检查（双重检测）
 
-1. 打开 https://www.picnan.com/sensitiveword
-2. 选择词库：通用词库 + 小红书 + 抖音
-3. 粘贴待检测文本，点击"立即检测"
-4. 处理命中词：
-   - `最` → `更` / `比较`
-   - `第一` → `头回` / `初次`
-   - `推荐` → `更适合` / `可以先看`
-5. 修改后重新检测，确保通过
+**本地检测**（无需网络）:
+```bash
+python3 scripts/check_compliance.py .
+```
+- 内置敏感词库，离线可用
+- 检测极限词、夸大宣传、AI腔调
+- 智能识别正常用词
+
+**PicNan API 在线检测**:
+```bash
+python3 scripts/check_compliance.py . --online
+```
+- API地址: https://www.picnan.com/sensitiveword/detect
+- 实时敏感词库
+- 支持通用词库 / 小红书 / 抖音 / B站
+
+**处理命中词**:
+- `最` → `更` / `比较`
+- `第一` → `头回` / `初次`
+- `推荐` → `更适合` / `可以先看`
+- `最佳` → `比较适合`
 
 **注意**: PicNan 是第三方工具，不等同于平台官方审核
 
@@ -229,32 +241,28 @@ social-content-producer/
 
 ### 2. PicNan Checker Skill (敏感词检测)
 
-**路径**: `~/.openclaw/workspace/skills/picnan-checker/` (系统预装)
+**路径**: `skills/picnan-checker/`
 
-**功能**: 使用图南坊敏感词检测工具进行内容审核
+**功能**: 双重敏感词检测（本地词库 + PicNan API）
 
-**检测流程**:
-1. 访问 https://www.picnan.com/sensitiveword
-2. 选择词库（通用词库 + 小红书 + 抖音）
-3. 粘贴文本，点击"立即检测"
-4. 查看命中词和风险等级
+**检测方式**:
+- **本地检测**: 内置词库，无需网络
+  ```bash
+  python3 scripts/check_compliance.py .
+  ```
+- **API检测**: 调用 PicNan 实时词库
+  ```bash
+  python3 scripts/check_compliance.py . --online
+  ```
 
-**词库支持**:
-- 通用词库
-- 小红书
-- 抖音
-- B站
-- 广告
-- 医疗
-- 政治
+**本地词库覆盖**:
+- 极限词、夸大宣传、AI腔调、绝对化、诱导性
 
-**处理建议**:
-- `最` → `更` / `比较`
-- `第一` → `头回` / `初次` / `优先看`
-- `推荐` → `更适合` / `可以先看`
-- 高风险词 → 中性描述
+**PicNan API**:
+- 地址: https://www.picnan.com/sensitiveword/detect
+- 词库: 通用词库、小红书、抖音、B站、广告、医疗、政治
 
-**注意**: PicNan 是第三方工具，不等同于平台官方审核
+**无需依赖**: 使用 Python 标准库 `urllib`，无需安装 `requests`
 
 ### 3. Nano Banana Pro Skill
 
@@ -273,7 +281,7 @@ uv run skills/nano-banana-pro/scripts/generate_image.py \
   --aspect-ratio 9:16
 ```
 
-**支持的分辨率**: 1K, 2K, 4K  
+**支持的分辨率**: 1K, 2K, 4K
 **支持的宽高比**: 1:1, 2:3, 3:2, 3:4, 4:3, 9:16, 16:9, 21:9
 
 ### 4. Publish Skill (可选)
@@ -422,6 +430,6 @@ MIT License
 
 ---
 
-**版本**: v1.0  
-**创建日期**: 2026-03-12  
+**版本**: v1.0
+**创建日期**: 2026-03-12
 **作者**: AI Content Production Team

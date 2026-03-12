@@ -23,8 +23,6 @@ echo $GOOGLE_API_KEY
 - `uv` - Python 包管理器
 - `python3` >= 3.10
 - `openclaw` CLI
-- `social-content-producer` skill（内容生成）
-- `picnan-checker` skill（敏感词检测，预装）
 - `nano-banana-pro` skill（生成配图）
 - `publish` skill（发布到公网）
 
@@ -37,9 +35,8 @@ openclaw skills install @openclaw/nano-banana-pro
 # 方法2：手动复制（本项目已包含）
 cp -r skills/nano-banana-pro ~/.openclaw/workspace/skills/
 cp -r skills/publish ~/.openclaw/workspace/skills/
+cp -r skills/social-content-producer ~/.openclaw/workspace/skills/
 ```
-
-**注意**: `picnan-checker` skill 应该已预装在 `~/.openclaw/workspace/skills/picnan-checker/`，用于敏感词检测。
 
 ### 3. 准备需求文档
 
@@ -113,18 +110,10 @@ AI 会自动执行以下流程：
 - 抖音脚本（分镜+口播+字幕）
 
 #### Step 3: 违禁词检查
-使用 `picnan-checker` skill（图南坊敏感词检测工具）：
-
-1. 打开 https://www.picnan.com/sensitiveword
-2. 选择词库：通用词库 + 小红书 + 抖音
-3. 粘贴待检测文本，点击"立即检测"
-4. 处理命中词：
-   - `最` → `更` / `比较`
-   - `第一` → `头回` / `初次`
-   - `推荐` → `更适合` / `可以先看`
-5. 修改后重新检测，确保通过
-
-**注意**: PicNan 是第三方工具，不等同于平台官方审核
+运行 `scripts/check_compliance.py`：
+- 检查"最"、"第一"、"绝对"等极限词
+- 检查"综上所述"、"首先其次最后"等AI腔调
+- 验证第一人称经历和具体细节
 
 #### Step 4: 生成配图
 使用 `nano-banana-pro` 生成12张2K高清图：
@@ -218,51 +207,23 @@ social-content-producer/
 **功能**:
 - 读取需求文档并解析
 - 生成三平台内容（微信/小红书/抖音）
-- 调用 `picnan-checker` 进行敏感词检测
+- 调用合规检查
 - 协调配图生成
 - 组装交付包
 
 **参考文档**:
-- `references/forbidden-words.md` - 完整违禁词列表（参考用）
+- `references/forbidden-words.md` - 完整违禁词列表
 - `references/platform-guidelines.md` - 三平台规范要求
 - `references/quality-checklist.md` - 交付质量检查清单
 
-**敏感词检测**:
-使用 `picnan-checker` skill（图南坊敏感词检测工具）：
-- 网址: https://www.picnan.com/sensitiveword
-- 支持词库: 通用词库、小红书、抖音、B站、广告、医疗、政治
-- 输出: 命中词、风险等级、词库来源
+**检查脚本**:
+```bash
+# 手动运行合规检查
+python3 skills/social-content-producer/scripts/check_compliance.py \
+  path/to/content.md
+```
 
-### 2. PicNan Checker Skill (敏感词检测)
-
-**路径**: `~/.openclaw/workspace/skills/picnan-checker/` (预装)
-
-**功能**: 使用图南坊敏感词检测工具进行内容审核
-
-**检测流程**:
-1. 访问 https://www.picnan.com/sensitiveword
-2. 选择词库（通用词库 + 小红书 + 抖音）
-3. 粘贴文本，点击"立即检测"
-4. 查看命中词和风险等级
-
-**词库支持**:
-- 通用词库
-- 小红书
-- 抖音
-- B站
-- 广告
-- 医疗
-- 政治
-
-**处理建议**:
-- `最` → `更` / `比较`
-- `第一` → `头回` / `初次` / `优先看`
-- `推荐` → `更适合` / `可以先看`
-- 高风险词 → 中性描述
-
-**注意**: PicNan 是第三方工具，不等同于平台官方审核
-
-### 3. Nano Banana Pro Skill
+### 2. Nano Banana Pro Skill
 
 **路径**: `skills/nano-banana-pro/`
 
@@ -282,7 +243,7 @@ uv run skills/nano-banana-pro/scripts/generate_image.py \
 **支持的分辨率**: 1K, 2K, 4K  
 **支持的宽高比**: 1:1, 2:3, 3:2, 3:4, 4:3, 9:16, 16:9, 21:9
 
-### 4. Publish Skill
+### 3. Publish Skill
 
 **路径**: `skills/publish/`
 
@@ -336,14 +297,6 @@ python3 skills/publish/scripts/publish_gateway.py ./out --sub-dir my-project
 
 ### 合规检查
 
-使用 `picnan-checker` skill（图南坊敏感词检测）：
-
-1. 打开 https://www.picnan.com/sensitiveword
-2. 选择词库：通用词库 + 小红书 + 抖音
-3. 粘贴文本检测
-4. 处理命中词后重新检测
-
-**检查清单**:
 - [ ] 无"最"字系列
 - [ ] 无"第一"系列
 - [ ] 无"绝对/保证"
@@ -351,8 +304,6 @@ python3 skills/publish/scripts/publish_gateway.py ./out --sub-dir my-project
 - [ ] 有第一人称经历
 - [ ] 有具体坐标细节
 - [ ] 有感官描述
-
-**注意**: PicNan 是第三方工具，检测结果仅供参考
 
 ---
 

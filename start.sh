@@ -78,6 +78,14 @@ if [ ! -d "$SKILL_DIR/publish" ]; then
 fi
 echo -e "${GREEN}✓${NC} publish skill 已就绪"
 
+# 检查 picnan-checker (预装)
+if [ ! -d "$SKILL_DIR/picnan-checker" ]; then
+    echo -e "${YELLOW}⚠ picnan-checker skill 未找到，敏感词检测需要使用在线工具${NC}"
+    echo "  网址: https://www.picnan.com/sensitiveword"
+else
+    echo -e "${GREEN}✓${NC} picnan-checker skill 已就绪 (图南坊敏感词检测)"
+fi"
+
 # 提取项目路径
 PROJECT_DIR=$(dirname "$REQUIREMENTS_FILE")
 OUT_DIR="$PROJECT_DIR/out"
@@ -100,7 +108,7 @@ echo ""
 echo "AI 将自动执行:"
 echo "  1. 读取需求文档"
 echo "  2. 生成微信/小红书/抖音内容"
-echo "  3. 违禁词检查"
+echo "  3. 违禁词检查 (picnan-checker / 图南坊)"
 echo "  4. 生成配图 (nano-banana-pro)"
 echo "  5. 组装交付包"
 echo "  6. 发布到公网"

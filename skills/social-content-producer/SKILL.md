@@ -125,8 +125,29 @@ out/
 ├── validation_report.html     # Styled audit report
 ├── deliverable.md             # Complete package documentation
 ├── deliverable.html           # Complete package (HTML)
-└── images/                    # 12 visual assets
+├── index.html                 # 🆕 Master showcase page (references all content)
+└── images/                    # Visual assets
 ```
+
+**Master Showcase Page (`index.html`)**:
+Create a comprehensive HTML page that showcases all deliverables:
+- Project overview and metadata
+- Embedded WeChat article with images
+- Embedded Xiaohongshu note with 9-image skeleton
+- Embedded Douyin script with thumbnail
+- Image gallery with all generated visuals
+- Validation report summary
+- Download links for all assets
+
+This serves as a complete example/demo of the generated content.
+
+**Generate master page**:
+```bash
+python3 ~/.openclaw/workspace/skills/publish/scripts/markdown_to_html.py \
+  out/deliverable.md out/index.html --template showcase
+```
+
+Or manually create `index.html` that references all content.
 
 ### Step 6: Validation Report
 

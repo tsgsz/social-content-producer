@@ -136,7 +136,7 @@ python3 scripts/check_compliance.py . --online
 **注意**: PicNan 是第三方工具，不等同于平台官方审核
 
 #### Step 4: 生成配图
-使用 `nano-banana-pro` 生成12张2K高清图：
+使用 `nano-banana-pro` 按照要求生成2K高清图：
 - 微信：1张信息图
 - 小红书：8张（封面、时间表、地图、场景等）
 - 抖音：2张（封面、资料包）
@@ -283,22 +283,6 @@ uv run skills/nano-banana-pro/scripts/generate_image.py \
 
 **支持的分辨率**: 1K, 2K, 4K
 **支持的宽高比**: 1:1, 2:3, 3:2, 3:4, 4:3, 9:16, 16:9, 21:9
-
-### 4. Publish Skill (可选)
-
-**路径**: `~/.openclaw/workspace/skills/publish/` (系统预装，可选)
-
-**功能**: 将文件发布到公网，生成可访问链接
-
-**注意**: 此 skill 为可选。默认只输出到本地 `out/` 文件夹。
-
-如需发布功能：
-```bash
-python3 ~/.openclaw/workspace/skills/publish/scripts/publish_gateway.py \
-  ./out --sub-dir my-project
-```
-
----
 
 ## 质量检查清单
 

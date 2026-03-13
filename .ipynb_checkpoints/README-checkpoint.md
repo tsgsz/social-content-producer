@@ -23,20 +23,20 @@ echo $GOOGLE_API_KEY
 - `uv` - Python 包管理器
 - `python3` >= 3.10
 - `openclaw` CLI
-- `nano-banana-pro` skill（生成配图）
-- `publish` skill（发布到公网）
 
 ### 2. 安装依赖 Skills
 
 ```bash
-# 方法1：使用 OpenClaw 安装
+# 使用 OpenClaw 安装 nano-banana-pro（配图生成）
 openclaw skills install @openclaw/nano-banana-pro
 
-# 方法2：手动复制（本项目已包含）
+# 或手动复制（本项目已包含）
 cp -r skills/nano-banana-pro ~/.openclaw/workspace/skills/
-cp -r skills/publish ~/.openclaw/workspace/skills/
-cp -r skills/social-content-producer ~/.openclaw/workspace/skills/
 ```
+
+**注意**:
+- `social-content-producer` skill 已在项目 `skills/` 目录中
+- `picnan-checker` skill 已包含在项目中，支持本地+API双重检测
 
 ### 3. 准备需求文档
 
@@ -86,8 +86,8 @@ cp -r skills/social-content-producer ~/.openclaw/workspace/skills/
 - 避免：过度总结式语气
 
 ### Double Check
-- 符合平台模板结构
-- 至少2-5个标题备选
+- 符合各平台模板结构
+- 每条内容2-5个标题备选
 - 语言自然，像真人写的
 ```
 
@@ -109,28 +109,53 @@ AI 会自动执行以下流程：
 - 小红书笔记（5个标题+9图骨架）
 - 抖音脚本（分镜+口播+字幕）
 
-#### Step 3: 违禁词检查
-运行 `scripts/check_compliance.py`：
-- 检查"最"、"第一"、"绝对"等极限词
-- 检查"综上所述"、"首先其次最后"等AI腔调
-- 验证第一人称经历和具体细节
+#### Step 3: 违禁词检查（双重检测）
+
+**本地检测**（无需网络）:
+```bash
+python3 scripts/check_compliance.py .
+```
+- 内置敏感词库，离线可用
+- 检测极限词、夸大宣传、AI腔调
+- 智能识别正常用词
+
+**PicNan API 在线检测**:
+```bash
+python3 scripts/check_compliance.py . --online
+```
+- API地址: https://www.picnan.com/sensitiveword/detect
+- 实时敏感词库
+- 支持通用词库 / 小红书 / 抖音 / B站
+
+**处理命中词**:
+- `最` → `更` / `比较`
+- `第一` → `头回` / `初次`
+- `推荐` → `更适合` / `可以先看`
+- `最佳` → `比较适合`
+
+**注意**: PicNan 是第三方工具，不等同于平台官方审核
 
 #### Step 4: 生成配图
-使用 `nano-banana-pro` 生成12张2K高清图：
+使用 `nano-banana-pro` 按照要求生成2K高清图：
 - 微信：1张信息图
 - 小红书：8张（封面、时间表、地图、场景等）
 - 抖音：2张（封面、资料包）
 
 #### Step 5: 组装交付包
-生成完整项目结构：
+生成完整项目结构到 `out/` 文件夹：
 ```
 out/
-├── wechat_article.md/html      # 微信公众号
-├── xiaohongshu_note.md/html    # 小红书
-├── douyin_script.md/html       # 抖音
-├── validation_report.md/html   # 审核报告
-├── deliverable.md/html         # 完整交付文档
-└── images/                     # 12张配图
+├── wechat_article.md          # 微信公众号
+├── wechat_article.html        # HTML 版本
+├── xiaohongshu_note.md        # 小红书
+├── xiaohongshu_note.html      # HTML 版本
+├── douyin_script.md           # 抖音
+├── douyin_script.html         # HTML 版本
+├── validation_report.md       # 审核报告
+├── validation_report.html     # HTML 审核报告
+├── deliverable.md             # 完整交付文档
+├── deliverable.html           # HTML 交付文档
+└── images/                    # 12张配图
     ├── wechat_checklist.png
     ├── xiaohongshu_cover.png
     ├── xiaohongshu_timeline.png
@@ -145,19 +170,13 @@ out/
     └── resource_package.png
 ```
 
-#### Step 6: 发布到公网
-使用 `publish` skill 生成可访问链接：
+#### Step 6: 完成
+所有交付物已保存到本地 `out/` 文件夹！
+
+**可选**: 如需公网访问链接，使用 `publish` skill（需单独安装）：
 ```bash
 python3 ~/.openclaw/workspace/skills/publish/scripts/publish_gateway.py \
-  ~/workspace/my-project/out --sub-dir my-project
-```
-
-输出示例：
-```json
-{
-  "status": "success",
-  "url": "https://benboerba.tingsongguan.com/file/my-project/xxx/out/"
-}
+  ./out --sub-dir my-project
 ```
 
 ---
@@ -166,34 +185,33 @@ python3 ~/.openclaw/workspace/skills/publish/scripts/publish_gateway.py \
 
 ```
 social-content-producer/
-├── README.md                          # 本文件
-├── skills/                            # 依赖的 Skills
-│   ├── social-content-producer/       # 主 Skill
+├── README.md                    # 本文件
+├── QUICKSTART.md               # 5分钟快速上手
+├── start.sh                    # 启动脚本
+│
+├── docs/
+│   └── requirements-template.md # 需求文档模板
+│
+├── skills/                     # 依赖 Skills
+│   ├── social-content-producer/  # 主 Skill（必需）
 │   │   ├── SKILL.md
 │   │   ├── references/
-│   │   │   ├── forbidden-words.md     # 违禁词列表
-│   │   │   ├── platform-guidelines.md # 平台规范
-│   │   │   └── quality-checklist.md   # 质量检查清单
+│   │   │   ├── forbidden-words.md
+│   │   │   ├── platform-guidelines.md
+│   │   │   └── quality-checklist.md
 │   │   └── scripts/
-│   │       └── check_compliance.py    # 合规检查脚本
+│   │       └── check_compliance.py
 │   │
-│   ├── nano-banana-pro/               # 配图生成 Skill
-│   │   ├── SKILL.md
-│   │   └── scripts/
-│   │       └── generate_image.py      # 图片生成脚本
-│   │
-│   └── publish/                       # 发布 Skill
+│   └── nano-banana-pro/         # 配图生成（必需）
 │       ├── SKILL.md
 │       └── scripts/
-│           └── publish_gateway.py     # 发布网关脚本
+│           └── generate_image.py
 │
-├── examples/                          # 示例项目
-│   └── social_content/                # M+博物馆案例
-│       ├── AI Testing Case.extracted.txt
-│       ├── content framework sample.extracted.txt
-│       └── out/                       # 完整交付物
-│
-└── docs/                              # 文档（待创建）
+└── examples/
+    └── social_content/          # M+博物馆案例
+        ├── AI Testing Case.extracted.txt
+        ├── content framework sample.extracted.txt
+        └── out/                 # 完整交付物示例
 ```
 
 ---
@@ -207,23 +225,46 @@ social-content-producer/
 **功能**:
 - 读取需求文档并解析
 - 生成三平台内容（微信/小红书/抖音）
-- 调用合规检查
+- 调用 `picnan-checker` 进行敏感词检测
 - 协调配图生成
-- 组装交付包
+- 组装交付包到 `out/` 文件夹
 
 **参考文档**:
-- `references/forbidden-words.md` - 完整违禁词列表
-- `references/platform-guidelines.md` - 三平台规范要求
-- `references/quality-checklist.md` - 交付质量检查清单
+- `references/forbidden-words.md` - 违禁词列表
+- `references/platform-guidelines.md` - 平台规范
+- `references/quality-checklist.md` - 质量检查清单
 
-**检查脚本**:
-```bash
-# 手动运行合规检查
-python3 skills/social-content-producer/scripts/check_compliance.py \
-  path/to/content.md
-```
+**敏感词检测**:
+使用 `picnan-checker` skill（图南坊敏感词检测）：
+- 网址: https://www.picnan.com/sensitiveword
+- 支持词库: 通用词库、小红书、抖音、B站、广告、医疗、政治
 
-### 2. Nano Banana Pro Skill
+### 2. PicNan Checker Skill (敏感词检测)
+
+**路径**: `skills/picnan-checker/`
+
+**功能**: 双重敏感词检测（本地词库 + PicNan API）
+
+**检测方式**:
+- **本地检测**: 内置词库，无需网络
+  ```bash
+  python3 scripts/check_compliance.py .
+  ```
+- **API检测**: 调用 PicNan 实时词库
+  ```bash
+  python3 scripts/check_compliance.py . --online
+  ```
+
+**本地词库覆盖**:
+- 极限词、夸大宣传、AI腔调、绝对化、诱导性
+
+**PicNan API**:
+- 地址: https://www.picnan.com/sensitiveword/detect
+- 词库: 通用词库、小红书、抖音、B站、广告、医疗、政治
+
+**无需依赖**: 使用 Python 标准库 `urllib`，无需安装 `requests`
+
+### 3. Nano Banana Pro Skill
 
 **路径**: `skills/nano-banana-pro/`
 
@@ -240,31 +281,8 @@ uv run skills/nano-banana-pro/scripts/generate_image.py \
   --aspect-ratio 9:16
 ```
 
-**支持的分辨率**: 1K, 2K, 4K  
+**支持的分辨率**: 1K, 2K, 4K
 **支持的宽高比**: 1:1, 2:3, 3:2, 3:4, 4:3, 9:16, 16:9, 21:9
-
-### 3. Publish Skill
-
-**路径**: `skills/publish/`
-
-**功能**: 将文件发布到公网，生成可访问链接
-
-**发布类型**:
-- 图片 → `https://benboerba.tingsongguan.com/img/...`
-- 文件/HTML → `https://benboerba.tingsongguan.com/file/...`
-- Markdown → 自动生成 HTML
-- 目录 → 完整快照
-
-**使用示例**:
-```bash
-# 发布单文件
-python3 skills/publish/scripts/publish_gateway.py image.png
-
-# 发布目录
-python3 skills/publish/scripts/publish_gateway.py ./out --sub-dir my-project
-```
-
----
 
 ## 质量检查清单
 
@@ -297,6 +315,14 @@ python3 skills/publish/scripts/publish_gateway.py ./out --sub-dir my-project
 
 ### 合规检查
 
+使用 `picnan-checker` skill（图南坊敏感词检测）：
+
+1. 打开 https://www.picnan.com/sensitiveword
+2. 选择词库：通用词库 + 小红书 + 抖音
+3. 粘贴文本检测
+4. 处理命中词后重新检测
+
+**检查清单**:
 - [ ] 无"最"字系列
 - [ ] 无"第一"系列
 - [ ] 无"绝对/保证"
@@ -304,6 +330,8 @@ python3 skills/publish/scripts/publish_gateway.py ./out --sub-dir my-project
 - [ ] 有第一人称经历
 - [ ] 有具体坐标细节
 - [ ] 有感官描述
+
+**注意**: PicNan 是第三方工具，检测结果仅供参考
 
 ---
 
@@ -323,10 +351,6 @@ python3 skills/publish/scripts/publish_gateway.py ./out --sub-dir my-project
 - 抖音脚本
 - 12张配图
 - 审核报告
-
-**在线预览**:
-- 完整交付包: https://benboerba.tingsongguan.com/file/mplus-deliverable-final/e2137edd7843/out/deliverable.html
-- 图片素材: https://benboerba.tingsongguan.com/file/mplus-images/681883a335d8/images/
 
 ---
 
@@ -360,22 +384,18 @@ curl -LsSf https://astral.sh/uv/install.sh | sh
 - 网络连接是否正常
 - 提示词是否合规
 
-### 4. 发布失败
+### 4. picnan-checker skill 未找到
 
-**检查**:
-- 目标路径是否存在
-- 文件权限是否正确
-- publish_gateway.py 路径是否正确
+**解决**: 敏感词检测直接使用在线工具 https://www.picnan.com/sensitiveword
 
 ---
 
 ## 开发计划
 
 - [x] 核心内容生成
-- [x] 违禁词检查
+- [x] 违禁词检查 (picnan-checker)
 - [x] 配图生成集成
-- [x] 交付包组装
-- [x] 公网发布
+- [x] 交付包组装 (输出到 out/)
 - [ ] 批量项目支持
 - [ ] 数据追踪集成
 - [ ] 用户反馈收集
@@ -394,6 +414,6 @@ MIT License
 
 ---
 
-**版本**: v1.0  
-**创建日期**: 2026-03-12  
+**版本**: v1.0
+**创建日期**: 2026-03-12
 **作者**: AI Content Production Team
